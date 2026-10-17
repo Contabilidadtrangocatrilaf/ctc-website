@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Cliente - CTC</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: #004080; color: white; padding: 15px 30px; border-radius: 6px; }
+        .header h1 { margin: 0; font-size: 20px; }
+        .logout-btn { background: #d9534f; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        .container { max-width: 900px; margin: 30px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        h3 { border-bottom: 2px solid #004080; padding-bottom: 8px; color: #333; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        a.download-link { background: #5cb85c; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 14px; }
+        a.download-link:hover { background: #4cae4c; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Contabilidad Trango Catrilaf (CTC) - Panel de Cliente</h1>
+        <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+    </div>
+
+    <div class="container">
+        <h2 id="welcomeTitle">Bienvenido</h2>
+        <p>Aquí puedes descargar tus documentos tributarios mensuales, IVAs y balances de forma segura.</p>
+        
+        <h3>Documentos Disponibles</h3>
+        <ul id="documentList">
+            <!-- Los documentos se cargarán dinámicamente según el cliente -->
+        </ul>
+    </div>
+
+    <script>
+        // Verificar si el usuario ha iniciado sesión
+        const currentUser = localStorage.getItem("ctc_user");
+        if (!currentUser) {
+            window.location.href = "login.html";
+        }
+
+        // Base de datos de documentos por cliente
+    const baseDocumentos = {
+    // ==========================================
+    // 1. CONTABILIDAD TRANGO CATRILAF
+    // ==========================================
+    "trangocatrilaf": {
+        nombre: "Contabilidad Trango Catrilaf",
+        categorias: {
+            "iva": {
+                titulo: "📁 IVA (Mensual 2026)",
+                docs: [
+                    { titulo: "IVA - Diciembre 2026", url: "docs/trangocatrilaf/iva/2026_12_IVA.pdf" },
+                    { titulo: "IVA - Noviembre 2026", url: "docs/trangocatrilaf/iva/2026_11_IVA.pdf" },
+                    { titulo: "IVA - Octubre 2026", url: "docs/trangocatrilaf/iva/2026_10_IVA.pdf" },
+                    { titulo: "IVA - Septiembre 2026", url: "docs/trangocatrilaf/iva/2026_09_IVA.pdf" },
+                    { titulo: "IVA - Agosto 2026", url: "docs/trangocatrilaf/iva/2026_08_IVA.pdf" },
+                    { titulo: "IVA - Julio 2026", url: "docs/trangocatrilaf/iva/2026_07_IVA.pdf" },
+                    { titulo: "IVA - Junio 2026", url: "docs/trangocatrilaf/iva/2026_06_IVA.pdf" },
+                    { titulo: "IVA - Mayo 2026", url: "docs/trangocatrilaf/iva/2026_05_IVA.pdf" },
+                    { titulo: "IVA - Abril 2026", url: "docs/trangocatrilaf/iva/2026_04_IVA.pdf" },
+                    { titulo: "IVA - Marzo 2026", url: "docs/trangocatrilaf/iva/2026_03_IVA.pdf" },
+                    { titulo: "IVA - Febrero 2026", url: "docs/trangocatrilaf/iva/2026_02_IVA.pdf" },
+                    { titulo: "IVA - Enero 2026", url: "docs/trangocatrilaf/iva/2026_01_IVA.pdf" }
+                ]
+            },
+            "renta": {
+                titulo: "📁 Renta",
+                docs: [
+                    { titulo: "Declaración de Renta 2026 (AT2026)", url: "docs/trangocatrilaf/renta/2026_Declaracion_Renta.pdf" }
+                ]
+            },
+            "balance": {
+                titulo: "📁 Balance",
+                docs: [
+                    { titulo: "Balance General 2026", url: "docs/trangocatrilaf/balance/2026_Balance_Anual.pdf" }
+                ]
+            },
+            "otros": {
+                titulo: "📁 Otros Informes",
+                docs: [
+                    { titulo: "Carpeta Tributaria / Informes", url: "docs/trangocatrilaf/otros/certificado-tributario.pdf" }
+                ]
+            }
+        }
+    },
+
+    // ==========================================
+    // 2. ELISEO HUENCHULAF
+    // ==========================================
+    "eliseohuenchulaf": {
+        nombre: "Eliseo Huenchulaf",
+        categorias: {
+            "iva": {
+                titulo: "📁 IVA (Mensual 2026)",
+                docs: [
+                    { titulo: "IVA - Diciembre 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Diciembre 2026.pdf" },
+                    { titulo: "IVA - Noviembre 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Noviembre 2026.pdf" },
+                    { titulo: "IVA - Octubre 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Octubre 2026.pdf" },
+                    { titulo: "IVA - Septiembre 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Septiembre 2026.pdf" },
+                    { titulo: "IVA - Agosto 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Agosto 2026.pdf" },
+                    { titulo: "IVA - Julio 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Julio 2026.pdf" },
+                    { titulo: "IVA - Junio 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Junio 2026.pdf" },
+                    { titulo: "IVA - Mayo 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Mayo 2026.pdf" },
+                    { titulo: "IVA - Abril 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Abril 2026.pdf" },
+                    { titulo: "IVA - Marzo 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Marzo 2026.pdf" },
+                    { titulo: "IVA - Febrero 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Febrero 2026.pdf" },
+                    { titulo: "IVA - Enero 2026", url: "docs/Eliseo_Huenchulaf/IVA/IVA - Enero 2026.pdf" }
+                ]
+            },
+            "renta": {
+                titulo: "📁 Renta",
+                docs: [
+                    { titulo: "Declaración de Renta 2026 (AT2026)", url: "docs/eliseohuenchulaf/renta/2026_Declaracion_Renta.pdf" }
+                ]
+            },
+            "balance": {
+                titulo: "📁 Balance",
+                docs: [
+                    { titulo: "Balance General 2026", url: "docs/eliseohuenchulaf/balance/2026_Balance_Anual.pdf" }
+                ]
+            },
+            "otros": {
+                titulo: "📁 Otros Informes",
+                docs: [
+                    { titulo: "Carpeta Tributaria / Informes", url: "docs/eliseohuenchulaf/otros/certificado-tributario.pdf" }
+                ]
+            }
+        }
+    },
+
+    // ==========================================
+    // 3. GRANJA QUECHEREHUE SPA
+    // ==========================================
+    "granjaquecherehue": {
+        nombre: "Granja Quecherehue SpA",
+        categorias: {
+            "iva": {
+                titulo: "📁 IVA (Mensual 2026)",
+                docs: [
+                    { titulo: "IVA - Diciembre 2026", url: "docs/granjaquecherehue/iva/2026_12_IVA.pdf" },
+                    { titulo: "IVA - Noviembre 2026", url: "docs/granjaquecherehue/iva/2026_11_IVA.pdf" },
+                    { titulo: "IVA - Octubre 2026", url: "docs/granjaquecherehue/iva/2026_10_IVA.pdf" },
+                    { titulo: "IVA - Septiembre 2026", url: "docs/granjaquecherehue/iva/2026_09_IVA.pdf" },
+                    { titulo: "IVA - Agosto 2026", url: "docs/granjaquecherehue/iva/2026_08_IVA.pdf" },
+                    { titulo: "IVA - Julio 2026", url: "docs/granjaquecherehue/iva/2026_07_IVA.pdf" },
+                    { titulo: "IVA - Junio 2026", url: "docs/granjaquecherehue/iva/2026_06_IVA.pdf" },
+                    { titulo: "IVA - Mayo 2026", url: "docs/granjaquecherehue/iva/2026_05_IVA.pdf" },
+                    { titulo: "IVA - Abril 2026", url: "docs/granjaquecherehue/iva/2026_04_IVA.pdf" },
+                    { titulo: "IVA - Marzo 2026", url: "docs/granjaquecherehue/iva/2026_03_IVA.pdf" },
+                    { titulo: "IVA - Febrero 2026", url: "docs/granjaquecherehue/iva/2026_02_IVA.pdf" },
+                    { titulo: "IVA - Enero 2026", url: "docs/granjaquecherehue/iva/2026_01_IVA.pdf" }
+                ]
+            },
+            "renta": {
+                titulo: "📁 Renta",
+                docs: [
+                    { titulo: "Declaración de Renta 2026 (AT2026)", url: "docs/granjaquecherehue/renta/2026_Declaracion_Renta.pdf" }
+                ]
+            },
+            "balance": {
+                titulo: "📁 Balance",
+                docs: [
+                    { titulo: "Balance General 2026", url: "docs/granjaquecherehue/balance/2026_Balance_Anual.pdf" }
+                ]
+            },
+            "otros": {
+                titulo: "📁 Otros Informes",
+                docs: [
+                    { titulo: "Carpeta Tributaria / Informes", url: "docs/granjaquecherehue/otros/certificado-tributario.pdf" }
+                ]
+            }
+        }
+    }
+};
+
+const clienteData = baseDocumentos[currentUser];
+
+if (clienteData) {
+    document.getElementById("welcomeTitle").innerText = "Bienvenido, " + clienteData.nombre;
+    const containerEl = document.getElementById("documentList");
+
+    // Función que dibuja la vista principal con las 4 carpetas
+    function mostrarCarpetas() {
+        let html = `<h3 style="margin-bottom: 20px; color: #444;">Carpetas de Documentos</h3>`;
+        html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;">`;
+
+        for (let claveCat in clienteData.categorias) {
+            let categoria = clienteData.categorias[claveCat];
+            // Cada tarjeta de carpeta tiene un evento onclick que llama a la función para abrirla
+            html += `
+                <div onclick="abrirCarpeta('${claveCat}')" style="background: #fdfdfd; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05);" onmouseover="this.style.borderColor='#007bff'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='#e0e0e0'; this.style.transform='translateY(0)';">
+                    <div style="font-size: 40px; margin-bottom: 10px;">📁</div>
+                    <div style="font-weight: bold; color: #333; font-size: 16px;">${categoria.titulo.replace('📁 ', '')}</div>
+                    <div style="font-size: 12px; color: #777; margin-top: 5px;">${categoria.docs.length} archivo(s)</div>
+                </div>
+            `;
+        }
+        html += `</div>`;
+        containerEl.innerHTML = html;
+    }
+
+    // Función que se ejecuta al hacer clic en una carpeta para ver sus archivos
+    window.abrirCarpeta = function(claveCat) {
+        let categoria = clienteData.categorias[claveCat];
+        
+        let html = `
+            <button onclick="mostrarCarpetas()" style="background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 20px; font-weight: bold;">
+                ⬅ Volver a Carpetas
+            </button>
+            <h3 style="margin-bottom: 15px; color: #333;">${categoria.titulo}</h3>
+            <ul style="list-style: none; padding: 0;">
+        `;
+
+        if (categoria.docs.length === 0) {
+            html += `<p style="color: #666; font-style: italic;">No hay documentos en esta carpeta.</p>`;
+        } else {
+            categoria.docs.forEach(doc => {
+                html += `
+                    <li style="margin: 10px 0; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 12px 15px; border-radius: 6px; border: 1px solid #eee;">
+                        <span style="font-weight: 500; color: #333;">📄 ${doc.titulo}</span>
+                        <a href="${doc.url}" target="_blank" style="text-decoration: none; background: #007bff; color: white; padding: 6px 14px; border-radius: 4px; font-size: 14px; font-weight: bold;">Ver PDF</a>
+                    </li>
+                `;
+            });
+        }
+
+        html += `</ul>`;
+        containerEl.innerHTML = html;
+    };
+
+    // Al cargar la página, mostramos la vista de carpetas inicial
+    mostrarCarpetas();
+}
+
+function logout() {
+    localStorage.removeItem("ctc_user");
+    window.location.href = "login.html";
+}
+    </script>
+</body>
+</html>
