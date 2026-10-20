@@ -517,6 +517,72 @@
   cursor: pointer;
 }
 
+/* Botón flotante del Tigre Ejecutivo */
+#chat-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #0b2341;
+    color: #d4af37;
+    border: 2px solid #d4af37;
+    border-radius: 40px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+  }
+
+  #chat-toggle-btn:hover {
+    background-color: #d4af37;
+    color: #0b2341;
+    transform: scale(1.05);
+  }
+
+  /* Estilo para la foto del tigre en la pastilla flotante */
+.tiger-avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #d4af37;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+  /* Contenedor principal del chat flotante */
+  .chat-container {
+    position: fixed;
+    bottom: 85px;       /* Justo arriba de la pastilla */
+    right: 20px;
+    width: 350px;
+    max-width: 90vw;
+    height: 420px;
+    background: #ffffff;
+    z-index: 9999;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #d4af37;
+  }
+
+  /* Clase obligatoria para ocultar/mostrar */
+  .chat-hidden {
+    display: none !important;
+  }
+
+  .chat-header-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
 </style>
 
 </head>
@@ -656,6 +722,46 @@
     </div>
   </div>
 </section>
+
+<!-- BOTÓN FLOTANTE -->
+<button id="chat-toggle-btn" onclick="toggleChat()">
+  <div class="tiger-avatar">🐅</div>
+  <div style="text-align: left; line-height: 1.2;">
+    <span style="font-size: 11px; opacity: 0.9; display: block;">Asistente Virtual</span>
+    <span>¡Pregúntale al Tigre!</span>
+  </div>
+</button>
+
+<!-- Botón flotante llamativo con tu Tigre Ejecutivo -->
+<button id="chat-toggle-btn" onclick="toggleChat()">
+  <img src="asistente1chat.JPG" alt="Tigre Ejecutivo" class="tiger-avatar-img">
+  <div style="text-align: left; line-height: 1.2;">
+    <span style="font-size: 11px; opacity: 0.9; display: block;">Asistente Virtual</span>
+    <span>¡Pregúntale al Tigre!</span>
+  </div>
+</button>
+
+<!-- Ventana del Chat -->
+<div id="chatWindow" class="chat-container chat-hidden">
+  <div class="chat-header" style="background-color: #0b2341; color: #d4af37; padding: 10px 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+    <div class="chat-header-content">
+      <img src="asistente1chat.JPG" alt="Tigre" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #d4af37;">
+      <span>Asistente Virtual</span>
+    </div>
+    <button onclick="toggleChat()" style="background: none; border: none; color: #d4af37; font-size: 18px; cursor: pointer; font-weight: bold;">✕</button>
+  </div>
+  
+  <div id="messages" style="flex: 1; overflow-y: auto; padding: 12px; background-color: #f8f9fa;">
+    <div class="msg bot" style="background: #e9ecef; color: #000; padding: 8px 12px; border-radius: 8px; margin-bottom: 8px;">
+      ¡Hola! Soy tu Asistente Virtual. ¿En qué te puedo orientar hoy con tus dudas contables y tributarias?
+    </div>
+  </div>
+
+  <div style="display: flex; padding: 10px; background: #fff; border-top: 1px solid #ddd;">
+    <input type="text" id="userInput" placeholder="Escribe tu consulta..." style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onkeypress="if(event.key==='Enter') enviarMensaje()">
+    <button onclick="enviarMensaje()" style="background-color: #d4af37; color: #0b2341; border: none; padding: 8px 16px; margin-left: 6px; font-weight: bold; cursor: pointer; border-radius: 4px;">Enviar</button>
+  </div>
+</div>
 
 <section class="about" id="Sobre Mí">
   <div class="container">
@@ -933,8 +1039,103 @@
   }
 
   cargarIndicadoresLocales();
-</script>
 
 </script>
+
+<script>
+  const GEMINI_API_KEY = "AQ.Ab8RN6IaZzLRVHmY10tKOSmwEnUP6mYi5OkIwQIEmWixUSHyrg";
+
+  // Función para abrir y cerrar el chat con la clase .chat-hidden
+  function toggleChat() {
+    const chatWindow = document.getElementById('chatWindow');
+    chatWindow.classList.toggle('chat-hidden');
+  }
+
+  async function enviarMensaje() {
+    const input = document.getElementById('userInput');
+    const texto = input.value.trim();
+    if (!texto) return;
+
+    agregarMensaje(texto, 'user');
+    input.value = '';
+
+    const idEspera = agregarMensaje("Pensando...", 'bot');
+
+    try {
+      const systemPrompt = "Eres el Asistente Virtual de Contabilidad Trango Catrilaf (Concepción, Chile). Responde dudas contables y tributarias básicas de forma concisa. Si la pregunta requiere cálculos, análisis de casos o trámites, deriva amablemente al WhatsApp +56 9 3171 9319.";
+      
+      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + GEMINI_API_KEY;
+
+      const respuesta = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: systemPrompt + "\n\nConsulta del usuario: " + texto }]
+            }
+          ]
+        })
+      });
+
+      const data = await respuesta.json();
+      
+      const elementoEspera = document.getElementById(idEspera);
+      if (elementoEspera) elementoEspera.remove();
+
+      if (data.error) {
+        agregarMensaje("Error: " + (data.error.message || JSON.stringify(data.error)), 'bot');
+        return;
+      }
+
+      if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+        agregarMensaje(data.candidates[0].content.parts[0].text, 'bot');
+      } else {
+        agregarMensaje("Lo siento, ocurrió un problema al procesar la respuesta.", 'bot');
+      }
+
+    } catch (err) {
+      const elementoEspera = document.getElementById(idEspera);
+      if (elementoEspera) elementoEspera.remove();
+      agregarMensaje("Error de conexión.", 'bot');
+    }
+  }
+
+  function agregarMensaje(texto, emisor) {
+    const container = document.getElementById('messages');
+    const msgDiv = document.createElement('div');
+    const idUnico = 'msg-' + Date.now();
+    
+    msgDiv.id = idUnico;
+    msgDiv.style.marginBottom = "8px";
+    msgDiv.style.padding = "8px 12px";
+    msgDiv.style.borderRadius = "8px";
+    
+    if (emisor === 'user') {
+      msgDiv.style.backgroundColor = "#0b2341";
+      msgDiv.style.color = "#ffffff";
+      msgDiv.style.marginLeft = "20%";
+      msgDiv.style.textAlign = "right";
+    } else {
+      msgDiv.style.backgroundColor = "#e9ecef";
+      msgDiv.style.color = "#000000";
+      msgDiv.style.marginRight = "20%";
+    }
+
+    msgDiv.innerText = texto;
+    container.appendChild(msgDiv);
+    container.scrollTop = container.scrollHeight;
+    return idUnico;
+  }
+</script>
+
+<<!-- 1. Primero cargamos el archivo de conocimiento -->
+    <script src="js/conocimiento.js"></script>
+
+    <!-- 2. Luego cargamos el script que maneja el chat y la IA -->
+    <script src="js/chat.js"></script>
+  </body>
+</html>
 
 </body></html>
