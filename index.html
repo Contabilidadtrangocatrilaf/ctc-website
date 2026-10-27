@@ -1003,7 +1003,7 @@
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 
-<script>
+<<script>
   // 1. Mostrar la fecha actual en español
   const fechaElem = document.getElementById('current-date');
   if (fechaElem) {
@@ -1011,11 +1011,12 @@
     fechaElem.textContent = new Date().toLocaleDateString('es-CL', opciones);
   }
 
-  // 2. Cargar los indicadores desde el archivo local generado por Python
-  async function cargarIndicadoresLocales() {
+  // 2. Cargar los indicadores directamente desde la API pública en tiempo real
+  async function cargarIndicadoresEnVivo() {
     try {
-      const response = await fetch('indicadores.json');
-      if (!response.ok) throw new Error('No se pudo encontrar indicadores.json');
+      // Apuntamos directo a la API oficial en lugar de buscar un archivo local
+      const response = await fetch('https://mindicador.cl/api');
+      if (!response.ok) throw new Error('No se pudo conectar con la API de indicadores');
       const data = await response.json();
 
       // Formateador de números a moneda chilena
@@ -1023,14 +1024,14 @@
         return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 2 }).format(valor);
       };
 
-      // Asignar los valores directamente desde el JSON
-      document.getElementById('val-uf').textContent = formatoCLP(data.uf);
-      document.getElementById('val-utm').textContent = formatoCLP(data.utm);
-      document.getElementById('val-dolar').textContent = formatoCLP(data.dolar);
-      document.getElementById('val-euro').textContent = formatoCLP(data.euro);
+      // Asignar los valores extrayendo el '.valor' que entrega la API pública
+      document.getElementById('val-uf').textContent = formatoCLP(data.uf.valor);
+      document.getElementById('val-utm').textContent = formatoCLP(data.utm.valor);
+      document.getElementById('val-dolar').textContent = formatoCLP(data.dolar.valor);
+      document.getElementById('val-euro').textContent = formatoCLP(data.euro.valor);
 
     } catch (error) {
-      console.warn('Error al leer el archivo JSON en el navegador:', error);
+      console.warn('Error al cargar los indicadores en vivo:', error);
       document.getElementById('val-uf').textContent = 'No disponible';
       document.getElementById('val-utm').textContent = 'No disponible';
       document.getElementById('val-dolar').textContent = 'No disponible';
@@ -1038,12 +1039,12 @@
     }
   }
 
-  cargarIndicadoresLocales();
-
+  // Ejecutamos la función apenas se cargue la página
+  cargarIndicadoresEnVivo();
 </script>
 
 <script>
-  const GEMINI_API_KEY = "AQ.Ab8RN6IaZzLRVHmY10tKOSmwEnUP6mYi5OkIwQIEmWixUSHyrg";
+  const GEMINI_API_KEY = "AQ.Ab8RN6JRrPeZgyTctKABTFoSXX_KRDkVVv1eh0oC8KXXX1Eoow";
 
   // Función para abrir y cerrar el chat con la clase .chat-hidden
   function toggleChat() {
